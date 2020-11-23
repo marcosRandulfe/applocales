@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-void main() => runApp(MyApp());
+//void main() => runApp(MyApp());
+
+void main() {
+  // We need to call it manually,
+  // because we going to call setPreferredOrientations()
+  // before the runApp() call
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Than we setup preferred orientations,
+  // and only after it finished we run our app
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((value) => runApp(MyApp()));
+}
+
 
 class MyApp extends StatelessWidget {
-  final List<String> entries = <String>['TABERNA CENTOLA', 'TABERNA CENTOLA', 'TABERNA CENTOLA'];
+  final List<Local> entries = <Local>[new Local('TABERNA CENTOLA'), new Local('TABERNA CENTOLA'),new Local('TABERNA CENTOLA')];
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +62,10 @@ class MyApp extends StatelessWidget {
               itemCount: entries.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context)=>DetailScreen(todo: entries[index])));
+                  },
                   title:Container(
                   padding: const EdgeInsets.all(8),
                   decoration: new BoxDecoration(borderRadius:
@@ -60,12 +78,12 @@ class MyApp extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children:[
                     Container(
-                      padding: const EdgeInsets.all(10),
-                      child: Text(entries[index],
+                      padding: const EdgeInsets.all(1),
+                      child: Text(entries[index].nombre,
                       style: TextStyle(fontFamily: 'Din', fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF6e090b))),
                     ),
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(1),
                       child: Text('Comida típica galega',
                       style: TextStyle(fontFamily: 'Din',
                                       fontSize: 14,
