@@ -1,67 +1,123 @@
-import 'package:backdrop/backdrop.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  final List<String> entries = <String>['TABERNA CENTOLA', 'TABERNA CENTOLA', 'TABERNA CENTOLA'];
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'HOSTELERÍA PONTEVEDRA',
-      home: BackdropScaffold(
-        appBar: BackdropAppBar(
-          title: Text("Navigation Example"),
-          actions: <Widget>[
-            BackdropToggleButton(
-              icon: AnimatedIcons.list_view,
-            )
-          ],
-        ),
-        stickyFrontLayer: true,
-        frontLayer: Text("Front layer"),
-        backLayer: BackdropNavigationBackLayer(
-          items: [
-            ListTile(title: Text("Widget 1")),
-            ListTile(title: Text("Widget 2")),
-          ],
-        ),
-      ),
+      title: 'Hostelería Pontevedra',
+      home: Scaffold(
+          body: Center(
+              child: Column(children: [
+        Stack(children: [
+          Image.asset('assets/images/hosteleria.jpg',
+              width: double.infinity, height: 250, fit: BoxFit.cover),
+          Positioned(
+              top: 150,
+              left: 20,
+              child: Container(
+                alignment: Alignment.center,
+                child: Text(
+                  'HOSTELERÍA \nPONTEVEDRA',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22.0,
+                      fontFamily: 'Impact'),
+                ),
+              ))
+        ]),
+        Container(
+            alignment: Alignment.topLeft,
+            padding: EdgeInsets.all(12),
+            child: Text(
+              'ELIJE TU RESTAURANTE FAVORITO:',
+              style: TextStyle(
+                  color: Color(0xFF6e090b),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  fontFamily: 'Din'),
+            )),
+        Container(
+            height: 350,
+            child: ListView.builder(
+              padding: const EdgeInsets.all(8),
+              itemCount: entries.length,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  title:Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: new BoxDecoration(borderRadius:
+                    BorderRadius.all(Radius.circular(25)),
+                    color: Color(0xFFb79f6c), ),
+                  child: Row(
+                  children: [
+                  Image.asset('assets/images/silverware.png', width: 50,height: 50),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:[
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Text(entries[index],
+                      style: TextStyle(fontFamily: 'Din', fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF6e090b))),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Text('Comida típica galega',
+                      style: TextStyle(fontFamily: 'Din',
+                                      fontSize: 14,
+                                      color: Color(0xFF6e090b)))
+                    )
+                  ])
+                ])))
+              ;
+              },
+            ),
+            ),
+      ]))),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
+class Local {
+  final String nombre;
+  /*final String phone1;
+  final String phone2;
+  final String web;
+  final String email;
+  final String whatapp;
+*/
+  //Local(this.nombre,this.phone1,this.phone2,this.web,this.email,this.whatapp);
+  Local(this.nombre);
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class DetailScreen extends StatelessWidget {
+  // Declare a field that holds the Todo.
+  final Local todo;
+
+  // In the constructor, require a Todo.
+  DetailScreen({Key key, @required this.todo}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Backdrop(
-      data: ,
+    // Use the Todo to create the UI.
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(todo.nombre),
+      ),
+      body: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(children: [
+            Text('Nombre: ' + todo.nombre),
+            /*          Text('Telefono 1: '+todo.phone1),
+              Text('Telefono 2: '+todo.phone2),
+              Text('WhatsApp: '+todo.whatapp),
+              Text('Email: '+todo.email),
+              Text('Web: '+todo.web)*/
+          ])),
     );
   }
 }
