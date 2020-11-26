@@ -139,19 +139,11 @@ class _MyAppState extends State<MyApp> {
   List<Local> unfilteredLocales;
   List<Local> listaAplicacion;
 
-  Future loadJson() async{
-    List<Local> data = await fetchListaLocales();
-    setState(() {
-      this.unfilteredLocales=data;
-      this.listaAplicacion=data;
-    });
-    return data;
-  }
 
   @override
   void initState() {
     super.initState();
-    loadJson();
+    this.locales=fetchListaLocales();
   }
 
   @override
@@ -211,9 +203,11 @@ class _MyAppState extends State<MyApp> {
                 future: locales,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
+                    this.listaAplicacion = snapshot.data;
+                    this.unfilteredLocales=snapshot.data;
                     return ListView.builder(
                         padding: const EdgeInsets.all(8),
-                        itemCount: snapshot.data.length,
+                        itemCount: listaAplicacion.length,
                         itemBuilder: (BuildContext context, int index) {
                           return ListTile(
                               onTap: () {
@@ -221,7 +215,7 @@ class _MyAppState extends State<MyApp> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => DetailScreen(
-                                            todo: snapshot.data[index])));
+                                            todo: listaAplicacion[index])));
                               },
                               title: Container(
                                   padding: const EdgeInsets.all(8),
@@ -238,7 +232,7 @@ class _MyAppState extends State<MyApp> {
                                                 Radius.circular(15)),
                                             child: Image.network(
                                               "https://" +
-                                                  snapshot.data[index].url_foto,
+                                                  listaAplicacion[index].url_foto,
                                               width: 50,
                                               height: 50,
                                               fit: BoxFit.cover,
@@ -250,7 +244,7 @@ class _MyAppState extends State<MyApp> {
                                           Container(
                                             padding: const EdgeInsets.all(1),
                                             child: Text(
-                                                snapshot.data[index].name
+                                                listaAplicacion[index].name
                                                     .toUpperCase(),
                                                 style: TextStyle(
                                                     fontFamily: 'Din',
@@ -284,29 +278,30 @@ class _MyAppState extends State<MyApp> {
 
 
    void filterSearchResults(String query) {
-    List<Local> dummySearchList = List<Local>();
-    List<Local> lista;
-    this.locales.then((value) =>lista=value);
-    dummySearchList.addAll(lista);
-    if(query.isNotEmpty) {
-      List<Local> dummyListData = List<Local>();
-      dummySearchList.forEach((item) {
+     if(this.unfilteredLocales!=null){
+        List<Local> dummySearchList = List<Local>();
+        dummySearchList.addAll(this.unfilteredLocales);
+      if(query.isNotEmpty) {
+        List<Local> dummyListData = List<Local>();
+        dummySearchList.forEach((item) {
         if(item.contains(query)) {
           dummyListData.add(item);
         }
       });
       setState(() {
-       /* items.clear();
-        items.addAll(dummyListData);*/
+        this.listaAplicacion.clear();
+        this.listaAplicacion.addAll(dummyListData);
       });
       return;
     } else {
       setState(() {
-        /*items.clear();
-        items.addAll(duplicateItems);
-        */
+        this.listaAplicacion.clear();
+        this.listaAplicacion.addAll(dummySearchList);
+ 
       });
     }
+  }
+
 
   }
 }
