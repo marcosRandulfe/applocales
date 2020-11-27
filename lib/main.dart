@@ -142,8 +142,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    super.initState();
     this.locales=fetchListaLocales();
+    super.initState();
   }
 
   @override
@@ -186,9 +186,9 @@ class _MyAppState extends State<MyApp> {
               margin: EdgeInsets.only(left: 20, right: 20),
               child: TextField(
                 onChanged: (value) {
-                  //filterSearchResults(value);
+                  filterSearchResults(value);
                 },
-              //  controller: editingController,
+                //controller: editingController,
                 decoration: InputDecoration(
                     labelText: "Buscar",
                     hintText: "Buscar",
@@ -202,9 +202,11 @@ class _MyAppState extends State<MyApp> {
             child: FutureBuilder<List<Local>>(
                 future: locales,
                 builder: (context, snapshot) {
-                  if (snapshot.hasData) {
+                  this.unfilteredLocales = snapshot.data;
+                  if (snapshot.hasData | (listaAplicacion!=null && listaAplicacion.isNotEmpty)) {
+                   if(listaAplicacion==null || listaAplicacion.isEmpty){
                     this.listaAplicacion = snapshot.data;
-                    this.unfilteredLocales=snapshot.data;
+                   }
                     return ListView.builder(
                         padding: const EdgeInsets.all(8),
                         itemCount: listaAplicacion.length,
@@ -255,7 +257,7 @@ class _MyAppState extends State<MyApp> {
                                           Container(
                                               padding: const EdgeInsets.all(1),
                                               child: Text(
-                                                  snapshot.data[index].address,
+                                                  listaAplicacion[index].address,
                                                   style: TextStyle(
                                                       fontFamily: 'Din',
                                                       fontSize: 14,
@@ -291,13 +293,14 @@ class _MyAppState extends State<MyApp> {
       setState(() {
         this.listaAplicacion.clear();
         this.listaAplicacion.addAll(dummyListData);
+        //this.listaAplicacion=dummyListData;
       });
       return;
     } else {
       setState(() {
         this.listaAplicacion.clear();
-        this.listaAplicacion.addAll(dummySearchList);
- 
+        this.listaAplicacion=this.unfilteredLocales;
+        //this.listaAplicacion=dummySearchList;
       });
     }
   }
