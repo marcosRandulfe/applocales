@@ -87,7 +87,9 @@ class DetailScreen extends StatelessWidget {
                   child: Container(
                       child: _WidgetTexto(negrita:'Nombre' ,valor: todo.name))))
         ]),
-        Container(
+        Expanded(
+          flex: 1,
+          child:Container(
             width: MediaQuery.of(context).size.width,
             color: Colors.white,
             child: Column(
@@ -109,7 +111,8 @@ class DetailScreen extends StatelessWidget {
           TextButton(
               onPressed: () => launch("tel:" + todo.phones[1]),
               child: Text('Teléfono 2: ' + todo.phones[1]))
-        ]))
+        ])
+        ))
       ]),
     );
   }
@@ -138,12 +141,16 @@ class _MyAppState extends State<MyApp> {
   Future<List<Local>> locales;
   List<Local> unfilteredLocales;
   List<Local> listaAplicacion;
+  static bool inicial=true;
 
 
   @override
   void initState() {
-    this.locales=fetchListaLocales();
     super.initState();
+    this.locales=fetchListaLocales();
+    this.unfilteredLocales = new List<Local>();
+    this.listaAplicacion = new List<Local>();
+    
   }
 
   @override
@@ -151,6 +158,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Hostelería Pontevedra',
       home: Scaffold(
+          resizeToAvoidBottomInset: false,
           body: Center(
               child: Column(children: [
         Stack(children: [
@@ -194,19 +202,22 @@ class _MyAppState extends State<MyApp> {
                     hintText: "Buscar",
                     prefixIcon: Icon(Icons.search),
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(25.0)))),
+                    borderRadius: BorderRadius.all(Radius.circular(25.0)))),
               ),
             ),
-        Container(
+          Expanded(
+            flex:1,
+            child:Container(
             height: 250,
             child: FutureBuilder<List<Local>>(
                 future: locales,
                 builder: (context, snapshot) {
-                  this.unfilteredLocales = snapshot.data;
-                  if (snapshot.hasData | (listaAplicacion!=null && listaAplicacion.isNotEmpty)) {
-                   if(listaAplicacion==null || listaAplicacion.isEmpty){
-                    this.listaAplicacion = snapshot.data;
-                   }
+                  if(_MyAppState.inicial && snapshot.hasData){
+                    listaAplicacion.addAll(snapshot.data);
+                    this.unfilteredLocales.addAll(snapshot.data);
+                    _MyAppState.inicial=false;
+                  }
+                  if (listaAplicacion!=null && listaAplicacion.isNotEmpty) {
                     return ListView.builder(
                         padding: const EdgeInsets.all(8),
                         itemCount: listaAplicacion.length,
@@ -271,15 +282,26 @@ class _MyAppState extends State<MyApp> {
                   }
                   // By default, show a loading spinner.
                   return Center(child: CircularProgressIndicator());
-                })),
+                })
+                )),
       ]
-      ))
+      )),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          setState(() {
+            this.listaAplicacion= new List<Local>();
+          });
+        },
+        label: Text('Categoria'),
+        icon: Icon(Icons.arrow_drop_down_circle_sharp),
+        backgroundColor: Colors.pink,
+      ),
       ),
     );
   }
 
 
-   void filterSearchResults(String query) {
+void filterSearchResults(String query) {
      if(this.unfilteredLocales!=null){
         List<Local> dummySearchList = List<Local>();
         dummySearchList.addAll(this.unfilteredLocales);
@@ -289,22 +311,20 @@ class _MyAppState extends State<MyApp> {
         if(item.contains(query)) {
           dummyListData.add(item);
         }
+      
       });
       setState(() {
         this.listaAplicacion.clear();
         this.listaAplicacion.addAll(dummyListData);
-        //this.listaAplicacion=dummyListData;
       });
       return;
     } else {
       setState(() {
         this.listaAplicacion.clear();
-        this.listaAplicacion=this.unfilteredLocales;
-        //this.listaAplicacion=dummySearchList;
+        this.listaAplicacion.addAll(this.unfilteredLocales);
       });
     }
   }
-
 
   }
 }
