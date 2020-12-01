@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'local.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+
 
 //void main() => runApp(MyApp());
 
@@ -137,11 +140,15 @@ class _WidgetTexto extends StatelessWidget{
     }
 }
 
+enum Category { restaurante, bar, hotel, asador }
+
 class _MyAppState extends State<MyApp> {
   Future<List<Local>> locales;
   List<Local> unfilteredLocales;
   List<Local> listaAplicacion;
   static bool inicial=true;
+  final navigatorKey = GlobalKey<NavigatorState>();
+
 
 
   @override
@@ -155,6 +162,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       title: 'Hostelería Pontevedra',
       home: Scaffold(
@@ -288,13 +296,19 @@ class _MyAppState extends State<MyApp> {
       )),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          setState(() {
-            this.listaAplicacion= new List<Local>();
-          });
+          //_askedToLead(this.context);
+          showModalBottomSheet(context: this.context, 
+                  builder:(BuildContext context){
+                    return MediaQuery(
+                      data: MediaQueryData(),
+                      child:Container(
+                      child:Text("Texto cosas"),
+                    ));
+                  });
         },
         label: Text('Categoria'),
         icon: Icon(Icons.arrow_drop_down_circle_sharp),
-        backgroundColor: Colors.pink,
+        backgroundColor: Color(0xFF6e090b),
       ),
       ),
     );
@@ -327,4 +341,74 @@ void filterSearchResults(String query) {
   }
 
   }
+
+  void filterByCategory(String query) {
+     if(this.unfilteredLocales!=null){
+        List<Local> dummySearchList = List<Local>();
+        dummySearchList.addAll(this.unfilteredLocales);
+      if(query.isNotEmpty) {
+        List<Local> dummyListData = List<Local>();
+        dummySearchList.forEach((item) {
+        if(item.category==query) {
+          dummyListData.add(item);
+        }
+      
+      });
+      setState(() {
+        this.listaAplicacion.clear();
+        this.listaAplicacion.addAll(dummyListData);
+      });
+      return;
+    } else {
+      setState(() {
+        this.listaAplicacion.clear();
+        this.listaAplicacion.addAll(this.unfilteredLocales);
+      });
+    }
+  }
+
+  }
+
+
+Future<void> _askedToLead(BuildContext context) async {
+  switch (await showDialog<Category>(
+    context: context,
+    builder: (BuildContext context) {
+        SimpleDialog(
+        title: const Text('Select assignment'),
+        children: <Widget>[
+          SimpleDialogOption(
+            onPressed: () { Navigator.pop(context, Category.restaurante); },
+            child: const Text('Restaurante'),
+          ),
+          SimpleDialogOption(
+            onPressed: () { Navigator.pop(context, Category.bar); },
+            child: const Text('Bar'),
+          ),
+          SimpleDialogOption(
+            onPressed: () { Navigator.pop(context, Category.asador); },
+            child: const Text('Asador'),
+          ),
+          SimpleDialogOption(
+            onPressed: () { Navigator.pop(context, Category.hotel); },
+            child: const Text('Hotel'),
+          ),
+        ],
+      );
+    }
+  )) {
+    case Category.restaurante: 
+      filterByCategory("restaurante");
+    break;
+    case Category.bar:
+      filterByCategory("bar");
+    break;
+    case Category.asador:
+      filterByCategory("asador");
+    break;
+    case Category.hotel:
+      filterByCategory("hotel");
+    break;
+  }
+}
 }
