@@ -8,6 +8,9 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'local.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:developer';
+
 
 //void main() => runApp(MyApp());
 
@@ -68,7 +71,7 @@ class MyApp extends StatelessWidget{
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'HOSTELERÍA PONTEVEDRA'),
     );
   }
 }
@@ -190,27 +193,28 @@ class _MyHomePageState extends State<MyHomePage> {
                     SimpleDialogOption(
                       child: Text('Restaurante'),
                       onPressed: (){
-                       
+                       filterByCategory("restaurante");
+                       Navigator.pop(context,Category.restaurante);
                       },
                     ),
                     SimpleDialogOption(
                       child: Text('Bar'),
                       onPressed: (){
-                        filterByCategory(Category.bar);
+                        filterByCategory("bar");
                         Navigator.pop(context,Category.bar);
                       },
                     ),
                     SimpleDialogOption(
                       child: Text('Hotel'),
                       onPressed: (){
-                        filterByCategory(Category.hotel);
+                        filterByCategory("hotel");
                         Navigator.pop(context,Category.hotel);
                       }
                     ),
                     SimpleDialogOption(
                       child: Text('Asador'),
                       onPressed: (){
-                        filterByCategory(Category.asador);
+                        filterByCategory("asador");
                         Navigator.pop(context,Category.hotel);
                       },
                     ),
@@ -245,7 +249,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Image.asset('assets/images/hosteleria.jpg',
                 width: double.infinity, height: 250, fit: BoxFit.cover),
             Positioned(
-                top: 150,
+                top: 60,
                 left: 20,
                 child: Container(
                   alignment: Alignment.center,
@@ -254,7 +258,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 22.0,
+                        fontSize: 28.0,
                         fontFamily: 'Impact'),
                   ),
                 ))
@@ -314,19 +318,26 @@ class _MyHomePageState extends State<MyHomePage> {
                                                           index])));
                                     },
                                     title: Container(
-                                        padding: const EdgeInsets.all(8),
+                                        padding: const EdgeInsets.all(2),
                                         decoration: new BoxDecoration(
                                           borderRadius: BorderRadius.all(
-                                              Radius.circular(25)),
+                                              Radius.circular(8)),
                                           color: Color(0xFFb79f6c),
                                         ),
                                         child: Row(children: [
                                           Container(
-                                              margin: const EdgeInsets.all(9),
+                                              decoration: new BoxDecoration(
+                                                boxShadow: [new BoxShadow(
+                                                  color: Colors.white,
+                                                  spreadRadius: 1
+                                                )],
+                                                borderRadius: new BorderRadius.all(Radius.circular(5)),
+                                              ),
+                                              margin: const EdgeInsets.all(4),
                                               child: ClipRRect(
                                                   borderRadius:
                                                       new BorderRadius.all(
-                                                          Radius.circular(15)),
+                                                          Radius.circular(5)),
                                                   child: Image.network(
                                                     "https://" +
                                                         listaAplicacion[index]
@@ -335,7 +346,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                                     height: 50,
                                                     fit: BoxFit.cover,
                                                   ))),
-                                          Column(
+                                          Container(
+                                            margin: EdgeInsets.all(8),
+                                            child:Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
@@ -350,7 +363,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                           fontFamily: 'Din',
                                                           fontSize: 22,
                                                           fontWeight:
-                                                              FontWeight.bold,
+                                                              FontWeight.w900,
                                                           color: Color(
                                                               0xFF6e090b))),
                                                 ),
@@ -362,10 +375,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                                             .address,
                                                         style: TextStyle(
                                                             fontFamily: 'Din',
-                                                            fontSize: 14,
+                                                            fontSize: 20,
+                                                            fontWeight: FontWeight.w400,
                                                             color: Color(
                                                                 0xFF6e090b))))
-                                              ])
+                                              ]))
                                         ])));
                               });
                         } else if (snapshot.hasError) {
@@ -412,15 +426,19 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void filterByCategory(Category category) {
-    String query= category.toString();
+  void filterByCategory(String query) {
     if (this.unfilteredLocales != null) {
       List<Local> dummySearchList = List<Local>();
       dummySearchList.addAll(this.unfilteredLocales);
-      if (query.isNotEmpty) {
+      log("Filtrado por categoria: ");
+      debugPrint("Filtrado por categoria");
+      if(query!=null) {
         List<Local> dummyListData = List<Local>();
         dummySearchList.forEach((item) {
-          if (item.category == query) {
+        debugPrint("Item.category:"+item.category);
+        debugPrint("Query: "+query);
+          if (item.category==query) {
+            debugPrint("Entra en el if");
             dummyListData.add(item);
           }
         });
