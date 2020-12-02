@@ -45,11 +45,44 @@ Future<List<Local>> fetchListaLocales() async {
   }
 }
 
-class MyApp extends StatefulWidget {
-  //final List<Local> entries = <Local>[new Local('TABERNA CENTOLA'), new Local('TABERNA CENTOLA'),new Local('TABERNA CENTOLA')];
 
+class MyApp extends StatelessWidget{
+  // This widget is the root of your application.
   @override
-  _MyAppState createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        // This is the theme of your application.
+        //
+        // Try running your application with "flutter run". You'll see the
+        // application has a blue toolbar. Then, without quitting the app, try
+        // changing the primarySwatch below to Colors.green and then invoke
+        // "hot reload" (press "r" in the console where you ran "flutter run",
+        // or simply save your changes to "hot reload" in a Flutter IDE).
+        // Notice that the counter didn't reset back to zero; the application
+        // is not restarted.
+        primarySwatch: Colors.blue,
+        // This makes the visual density adapt to the platform that you run
+        // the app on. For desktop platforms, the controls will be smaller and
+        // closer together (more dense) than on mobile platforms.
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+
+class MyHomePage extends StatefulWidget {
+  //final List<Local> entries = <Local>[new Local('TABERNA CENTOLA'), new Local('TABERNA CENTOLA'),new Local('TABERNA CENTOLA')];
+ 
+  MyHomePage({Key key, this.title}) : super(key: key);
+
+  final String title;
+  
+ @override
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
 class DetailScreen extends StatelessWidget {
@@ -147,7 +180,45 @@ class _WidgetTexto extends StatelessWidget {
 
 enum Category { restaurante, bar, hotel, asador }
 
-class _MyAppState extends State<MyApp> {
+class _MyHomePageState extends State<MyHomePage> {
+
+    void _mostrarDialogo(BuildContext context){
+     showDialog(context: context,
+                child: SimpleDialog(
+                  title: const Text("Seleccione categoria"),
+                  children: [
+                    SimpleDialogOption(
+                      child: Text('Restaurante'),
+                      onPressed: (){
+                       
+                      },
+                    ),
+                    SimpleDialogOption(
+                      child: Text('Bar'),
+                      onPressed: (){
+                        filterByCategory(Category.bar);
+                        Navigator.pop(context,Category.bar);
+                      },
+                    ),
+                    SimpleDialogOption(
+                      child: Text('Hotel'),
+                      onPressed: (){
+                        filterByCategory(Category.hotel);
+                        Navigator.pop(context,Category.hotel);
+                      }
+                    ),
+                    SimpleDialogOption(
+                      child: Text('Asador'),
+                      onPressed: (){
+                        filterByCategory(Category.asador);
+                        Navigator.pop(context,Category.hotel);
+                      },
+                    ),
+                  ],
+                )
+             );
+  }
+
   Future<List<Local>> locales;
   List<Local> unfilteredLocales;
   List<Local> listaAplicacion;
@@ -221,10 +292,10 @@ class _MyAppState extends State<MyApp> {
                   child: FutureBuilder<List<Local>>(
                       future: locales,
                       builder: (context, snapshot) {
-                        if (_MyAppState.inicial && snapshot.hasData) {
+                        if (_MyHomePageState.inicial && snapshot.hasData) {
                           listaAplicacion.addAll(snapshot.data);
                           this.unfilteredLocales.addAll(snapshot.data);
-                          _MyAppState.inicial = false;
+                          _MyHomePageState.inicial = false;
                         }
                         if (listaAplicacion != null &&
                             listaAplicacion.isNotEmpty) {
@@ -306,16 +377,7 @@ class _MyAppState extends State<MyApp> {
         ])),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
-            _askedToLead(this.context);
-        /*    showModalBottomSheet(
-                context: this.context,
-                builder: (BuildContext context) {
-                  return MediaQuery(
-                      data: MediaQueryData(),
-                      child: Container(
-                        child: Text("Texto cosas"),
-                      ));
-                });*/
+            _mostrarDialogo(this.context);
           },
           label: Text('Categoria'),
           icon: Icon(Icons.arrow_drop_down_circle_sharp),
@@ -350,7 +412,8 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  void filterByCategory(String query) {
+  void filterByCategory(Category category) {
+    String query= category.toString();
     if (this.unfilteredLocales != null) {
       List<Local> dummySearchList = List<Local>();
       dummySearchList.addAll(this.unfilteredLocales);
@@ -372,55 +435,6 @@ class _MyAppState extends State<MyApp> {
           this.listaAplicacion.addAll(this.unfilteredLocales);
         });
       }
-    }
-  }
-
-  Future<void> _askedToLead(BuildContext context) async {
-    switch (await showDialog<Category>(
-        context: context,
-        builder: (BuildContext context){
-          SimpleDialog(
-            title: const Text('Select assignment'),
-            children: <Widget>[
-              SimpleDialogOption(
-                onPressed: () {
-                  Navigator.pop(context, Category.restaurante);
-                },
-                child: const Text('Restaurante'),
-              ),
-              SimpleDialogOption(
-                onPressed: () {
-                  Navigator.pop(context, Category.bar);
-                },
-                child: const Text('Bar'),
-              ),
-              SimpleDialogOption(
-                onPressed: () {
-                  Navigator.pop(context, Category.asador);
-                },
-                child: const Text('Asador'),
-              ),
-              SimpleDialogOption(
-                onPressed: () {
-                  Navigator.pop(context, Category.hotel);
-                },
-                child: const Text('Hotel'),
-              ),
-            ],
-          );
-        })) {
-      case Category.restaurante:
-        filterByCategory("restaurante");
-        break;
-      case Category.bar:
-        filterByCategory("bar");
-        break;
-      case Category.asador:
-        filterByCategory("asador");
-        break;
-      case Category.hotel:
-        filterByCategory("hotel");
-        break;
     }
   }
 }
