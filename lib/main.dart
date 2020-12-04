@@ -170,6 +170,7 @@ class _WidgetTexto extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(8),
       margin: EdgeInsets.all(8),
+      width: MediaQuery.of(context).size.width*0.7,
       child: Row(children: [
         Text(
           this.negrita + ":     ",
@@ -218,6 +219,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         Navigator.pop(context,Category.hotel);
                       },
                     ),
+                    SimpleDialogOption(
+                      child: Text('Todos'),
+                      onPressed:(){
+                        filterByCategory(null);
+                        Navigator.pop(context,"todos");
+                      }
+                    )
                   ],
                 )
              );
@@ -298,7 +306,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       builder: (context, snapshot) {
                         if (_MyHomePageState.inicial && snapshot.hasData) {
                           listaAplicacion.addAll(snapshot.data);
+                          if(this.unfilteredLocales.isEmpty){
                           this.unfilteredLocales.addAll(snapshot.data);
+                          }
                           _MyHomePageState.inicial = false;
                         }
                         if (listaAplicacion != null &&
