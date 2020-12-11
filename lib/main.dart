@@ -25,6 +25,12 @@ void main() {
       .then((value) => runApp(MyApp()));
 }
 
+var categorias =[];
+
+List categories(){
+  return categorias;
+}
+
 Future<List<Local>> fetchListaLocales() async {
   List<Local> locales = [];
   var url = "http://www.cactusdigital.com/locales/blog/public/index.php";
@@ -40,6 +46,11 @@ Future<List<Local>> fetchListaLocales() async {
         locales.add(Local.fromJson(element));
       });
     }
+    for (var local in locales) {
+      if(!categorias.contains(local.category)){
+        categorias.add(local.category);
+      }
+    }
     return locales;
   } else {
     // If the server did not return a 200 OK response,
@@ -48,13 +59,19 @@ Future<List<Local>> fetchListaLocales() async {
   }
 }
 
+/*List<String>  getCategorias(){
+  var url = "http://www.cactusdigital.com/locales/blog/public/categories";
+  http.get(url, headers: {'Api-Token': '8e84eb8b-e715-496c-9cf7-7fc81105d9b5'});
 
-class MyApp extends StatelessWidget{
+}*/
+
+
+class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Hostelería Pontevedra',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -76,15 +93,14 @@ class MyApp extends StatelessWidget{
   }
 }
 
-
 class MyHomePage extends StatefulWidget {
   //final List<Local> entries = <Local>[new Local('TABERNA CENTOLA'), new Local('TABERNA CENTOLA'),new Local('TABERNA CENTOLA')];
- 
+
   MyHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
-  
- @override
+
+  @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
@@ -140,21 +156,47 @@ class DetailScreen extends StatelessWidget {
                       _WidgetTexto(negrita: "Para llevar", valor: para_llevar),
                       _WidgetTexto(
                           negrita: 'Entrega a domicilio', valor: entregas),
-                      TextButton(
-                          onPressed: () => launch("mailto:" + todo.email),
-                          child: Text('Email: ' + todo.email)),
-                      TextButton(
-                          onPressed: () => launch(todo.web),
-                          child: Text('Web: ' + todo.web)),
-                      TextButton(
-                          onPressed: () => launch("tel:" + todo.phones[0]),
-                          child: Text('Teléfono 1: ' + todo.phones[0])),
-                      TextButton(
-                          onPressed: () => launch("tel:" + todo.phones[1]),
-                          child: Text('Teléfono 2: ' + todo.phones[1]))
+                      Row(children: [_WidgetEmail(email: todo.email),
+                      _WidgetWeb(web: todo.web)]),
+                      Row(children: [_WidgetPhone(phone: todo.phones[0]),
+                      _WidgetPhone(phone: todo.phones[1])]),
                     ])))
       ]),
     );
+  }
+}
+
+class _WidgetEmail extends StatelessWidget{
+  String email;
+
+  _WidgetEmail({Key key, @required this.email}) : super(key: key);
+
+  Widget build(BuildContext context) {
+    if (this.email != null && this.email != "") {
+      return FlatButton.icon(
+          onPressed: () => {launch("mailto:" + this.email)},
+          icon: Icon(Icons.email),
+          label: Text("EMAIL"));
+    } else {
+      return new Container(width: 0, height: 0);
+    }
+  }
+}
+
+class _WidgetWeb extends StatelessWidget{
+  String web;
+
+  _WidgetWeb({Key key, @required this.web}) : super(key: key);
+
+  Widget build(BuildContext context) {
+    if (this.web != null && this.web != "") {
+      return FlatButton.icon(
+          onPressed: () => {launch(this.web)},
+          icon: Icon(Icons.web),
+          label: Text("WEB"));
+    } else {
+      return new Container(width: 0, height: 0);
+    }
   }
 }
 
@@ -170,65 +212,99 @@ class _WidgetTexto extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(8),
       margin: EdgeInsets.all(8),
-      width: MediaQuery.of(context).size.width*0.7,
+      width: MediaQuery.of(context).size.width * 0.7,
       child: Row(children: [
         Text(
           this.negrita + ":     ",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
-        Text(this.valor, style: TextStyle(fontSize: 18))
+        Flexible(child: Text(this.valor, style: TextStyle(fontSize: 18)))
       ]),
     );
   }
 }
 
-enum Category { restaurante, bar, hotel, asador }
+class _WidgetPhone extends StatelessWidget{
+  
+  String phone;
+
+  _WidgetPhone({Key key, @required this.phone})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (this.phone != null && this.phone != "") {
+      return FlatButton.icon(
+          onPressed: () => {launch('tel:/'+this.phone)},
+          icon: Icon(Icons.phone),
+          label: Text(this.phone));
+    } else {
+      return new Container(width: 0, height: 0);
+    }
+  }
+}
+
+
 
 class _MyHomePageState extends State<MyHomePage> {
 
-    void _mostrarDialogo(BuildContext context){
-     showDialog(context: context,
-                child: SimpleDialog(
-                  title: const Text("Seleccione categoria"),
-                  children: [
-                    SimpleDialogOption(
-                      child: Text('Restaurante'),
-                      onPressed: (){
-                       filterByCategory("restaurante");
-                       Navigator.pop(context,Category.restaurante);
-                      },
-                    ),
-                    SimpleDialogOption(
-                      child: Text('Bar'),
-                      onPressed: (){
-                        filterByCategory("bar");
-                        Navigator.pop(context,Category.bar);
-                      },
-                    ),
-                    SimpleDialogOption(
-                      child: Text('Hotel'),
-                      onPressed: (){
-                        filterByCategory("hotel");
-                        Navigator.pop(context,Category.hotel);
-                      }
-                    ),
-                    SimpleDialogOption(
-                      child: Text('Asador'),
-                      onPressed: (){
-                        filterByCategory("asador");
-                        Navigator.pop(context,Category.hotel);
-                      },
-                    ),
-                    SimpleDialogOption(
-                      child: Text('Todos'),
-                      onPressed:(){
-                        filterByCategory(null);
-                        Navigator.pop(context,"todos");
-                      }
-                    )
-                  ],
-                )
+  List<Widget> _createChildren(categorias,context){
+  return new List<Widget>.generate(categorias.length, (index) {
+    return new SimpleDialogOption(
+               child: Text(categorias[index]),
+               onPressed: () {
+               filterByCategory(categorias[index]);
+               Navigator.pop(context, categorias[index]);
+               },
              );
+  });
+}
+
+
+
+  void _mostrarDialogo(BuildContext context,categories) {
+    showDialog(
+        context: context,
+        child: SimpleDialog(
+          title: const Text("Seleccione categoria"),
+          children:_createChildren(categories,context),
+          // [ 
+          //   SimpleDialogOption(
+          //   child: Text('Restaurante'),
+          //    onPressed: () {
+          //    filterByCategory("restaurante");
+          //    Navigator.pop(context, Category.restaurante);
+          //     },
+          //   ),
+          //  SimpleDialogOption(
+          //     child: Text('Bar'),
+          //     onPressed: () {
+          //       filterByCategory("bar");
+            //     Navigator.pop(context, Category.bar);
+            //   },
+            // ),
+            // SimpleDialogOption(
+            //     child: Text('Hotel'),
+            //     onPressed: () {
+            //       filterByCategory("hotel");
+            //       Navigator.pop(context, Category.hotel);
+            //     }),
+            // SimpleDialogOption(
+            //   child: Text('Asador'),
+            //   onPressed: () {
+            //     filterByCategory("asador");
+            //     Navigator.pop(context, Category.hotel);
+            //   },
+            // ),
+            // SimpleDialogOption(
+            //     child: Text('Todos'),
+            //     onPressed: () {
+            //       filterByCategory(null);
+            //       Navigator.pop(context, "todos");
+            //     })
+          //]
+          
+        ));
   }
 
   Future<List<Local>> locales;
@@ -306,8 +382,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       builder: (context, snapshot) {
                         if (_MyHomePageState.inicial && snapshot.hasData) {
                           listaAplicacion.addAll(snapshot.data);
-                          if(this.unfilteredLocales.isEmpty){
-                          this.unfilteredLocales.addAll(snapshot.data);
+                          if (this.unfilteredLocales.isEmpty) {
+                            this.unfilteredLocales.addAll(snapshot.data);
                           }
                           _MyHomePageState.inicial = false;
                         }
@@ -337,11 +413,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                         child: Row(children: [
                                           Container(
                                               decoration: new BoxDecoration(
-                                                boxShadow: [new BoxShadow(
-                                                  color: Colors.white,
-                                                  spreadRadius: 1
-                                                )],
-                                                borderRadius: new BorderRadius.all(Radius.circular(5)),
+                                                boxShadow: [
+                                                  new BoxShadow(
+                                                      color: Colors.white,
+                                                      spreadRadius: 1)
+                                                ],
+                                                borderRadius:
+                                                    new BorderRadius.all(
+                                                        Radius.circular(5)),
                                               ),
                                               margin: const EdgeInsets.all(4),
                                               child: ClipRRect(
@@ -357,39 +436,49 @@ class _MyHomePageState extends State<MyHomePage> {
                                                     fit: BoxFit.cover,
                                                   ))),
                                           Container(
-                                            margin: EdgeInsets.all(8),
-                                            child:Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.all(1),
-                                                  child: Text(
-                                                      listaAplicacion[index]
-                                                          .name
-                                                          .toUpperCase(),
-                                                      style: TextStyle(
-                                                          fontFamily: 'Din',
-                                                          fontSize: 22,
-                                                          fontWeight:
-                                                              FontWeight.w900,
-                                                          color: Color(
-                                                              0xFF6e090b))),
-                                                ),
-                                                Container(
-                                                    padding:
-                                                        const EdgeInsets.all(1),
-                                                    child: Text(
-                                                        listaAplicacion[index]
-                                                            .address,
-                                                        style: TextStyle(
-                                                            fontFamily: 'Din',
-                                                            fontSize: 20,
-                                                            fontWeight: FontWeight.w400,
-                                                            color: Color(
-                                                                0xFF6e090b))))
-                                              ]))
+                                              margin: EdgeInsets.all(8),
+                                              child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              1),
+                                                      child: Flexible(
+                                                        child: Text(
+                                                          listaAplicacion[index]
+                                                              .name
+                                                              .toUpperCase(),
+                                                          style: TextStyle(
+                                                              fontFamily: 'Din',
+                                                              fontSize: 22,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w900,
+                                                              color: Color(
+                                                                  0xFF6e090b))),
+                                                    )),
+                                                    Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(1),
+                                                        child: Text(
+                                                            listaAplicacion[
+                                                                    index]
+                                                                .address,
+                                                            textAlign: TextAlign
+                                                                .left,
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    'Din',
+                                                                fontSize: 20,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                                color: Color(
+                                                                    0xFF6e090b))))
+                                                  ]))
                                         ])));
                               });
                         } else if (snapshot.hasError) {
@@ -401,7 +490,13 @@ class _MyHomePageState extends State<MyHomePage> {
         ])),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
-            _mostrarDialogo(this.context);
+            var categories=[];
+            for (var local in this.unfilteredLocales) {
+              if(!categories.contains(local.category)){
+                categories.add(local.category);
+              }  
+            }
+            _mostrarDialogo(this.context,categories);
           },
           label: Text('Categoria'),
           icon: Icon(Icons.arrow_drop_down_circle_sharp),
@@ -442,12 +537,12 @@ class _MyHomePageState extends State<MyHomePage> {
       dummySearchList.addAll(this.unfilteredLocales);
       log("Filtrado por categoria: ");
       debugPrint("Filtrado por categoria");
-      if(query!=null) {
+      if (query != null) {
         List<Local> dummyListData = List<Local>();
         dummySearchList.forEach((item) {
-        debugPrint("Item.category:"+item.category);
-        debugPrint("Query: "+query);
-          if (item.category==query) {
+          debugPrint("Item.category:" + item.category);
+          debugPrint("Query: " + query);
+          if (item.category == query) {
             debugPrint("Entra en el if");
             dummyListData.add(item);
           }
